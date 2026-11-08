@@ -46,11 +46,52 @@
       color: var(--ink);
     }
     .intro { margin: 0; color: var(--muted); }
+    .selector { display: grid; gap: 12px; margin-top: 32px; }
+    .group {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    .group > summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 18px;
+      cursor: pointer;
+      list-style: none;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      transition: background .18s;
+    }
+    .group > summary::-webkit-details-marker { display: none; }
+    .group > summary:hover { background: var(--card-hover); }
+    .group > summary:focus-visible { outline: 2px solid rgba(var(--ac), .5); outline-offset: -2px; }
+    .group-count {
+      padding: 2px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .group-chev {
+      margin-left: auto;
+      width: 8px;
+      height: 8px;
+      border-right: 1.6px solid currentColor;
+      border-bottom: 1.6px solid currentColor;
+      color: var(--muted);
+      transform: rotate(45deg) translate(-1px, -1px);
+      transition: transform .2s;
+    }
+    .group:not([open]) .group-chev { transform: rotate(-45deg) translate(-1px, 1px); }
     .versions {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 14px;
-      margin-top: 32px;
+      gap: 12px;
+      margin: 0;
+      padding: 0 12px 12px;
     }
     .versions.four-up { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .four-up .version { min-height: 150px; padding: 14px; }
@@ -110,39 +151,85 @@
   <main>
     <div class="eyebrow">Eaglercraft launcher</div>
     <h1>Pick your edition</h1>
-    <p class="intro">Choose an edition to launch in your browser.</p>
-    <nav class="versions four-up" aria-label="Game editions">
-      <a class="version" href="./eaglercraft-1.12.2.html">
-        <span><small>Classic edition</small><strong>1.12.2</strong></span>
-        <span class="launch">Launch game ↗</span>
-      </a>
-      <a class="version" href="./eaglercraft26-2.html">
-        <span><small>Offline edition</small><strong>26.2</strong></span>
-        <span class="launch">Launch game ↗</span>
-      </a>
-      <a class="version" href="./eaglercraft1-8-wasm.html">
-        <span><small>WASM-GC edition</small><strong>1.8.8</strong></span>
-        <span class="launch">Launch game ↗</span>
-      </a>
-      <a class="version" href="./eaglercraft1-8-BiomesOPlenty-WASM.html">
-        <span><small>Biomes O' Plenty</small><strong>1.8.8 BOP</strong></span>
-        <span class="launch">Launch game ↗</span>
-      </a>
-      <a class="version" href="./eaglercraft-1.14.4-wasm.html">
-        <span><small>Community port</small><strong>1.14.4</strong></span>
-        <span class="launch">Launch game ↗</span>
-      </a>
-      <a class="version" href="./eaglercraft-1.16.5-wasm.html">
-        <span><small>Community port</small><strong>1.16.5</strong></span>
-        <span class="launch">Launch game ↗</span>
-      </a>
-      <a class="version" href="./The%20Broken%20Script.html">
-        <span><small>Horror edition</small><strong>The Broken Script</strong></span>
-        <span class="launch">Launch game ↗</span>
-      </a>
-    </nav>
+    <p class="intro">Pick a category, then choose an edition to launch in your browser.</p>
+    <div class="selector">
+      <details class="group" data-group="old" open>
+        <summary>
+          <span>Old Eaglercraft</span>
+          <span class="group-count">2</span>
+          <span class="group-chev" aria-hidden="true"></span>
+        </summary>
+        <nav class="versions four-up" aria-label="Old Eaglercraft editions">
+          <a class="version" href="./eaglercraft1-8-wasm.html">
+            <span><small>WASM-GC edition</small><strong>1.8.8</strong></span>
+            <span class="launch">Launch game ↗</span>
+          </a>
+          <a class="version" href="./eaglercraft-1.12.2.html">
+            <span><small>Classic edition</small><strong>1.12.2</strong></span>
+            <span class="launch">Launch game ↗</span>
+          </a>
+        </nav>
+      </details>
+
+      <details class="group" data-group="modern" open>
+        <summary>
+          <span>Modern Eaglercraft</span>
+          <span class="group-count">3</span>
+          <span class="group-chev" aria-hidden="true"></span>
+        </summary>
+        <nav class="versions four-up" aria-label="Modern Eaglercraft editions">
+          <a class="version" href="./eaglercraft-1.14.4-wasm.html">
+            <span><small>Community port</small><strong>1.14.4</strong></span>
+            <span class="launch">Launch game ↗</span>
+          </a>
+          <a class="version" href="./eaglercraft-1.16.5-wasm.html">
+            <span><small>Community port</small><strong>1.16.5</strong></span>
+            <span class="launch">Launch game ↗</span>
+          </a>
+          <a class="version" href="./eaglercraft26-2.html">
+            <span><small>Offline edition</small><strong>26.2</strong></span>
+            <span class="launch">Launch game ↗</span>
+          </a>
+        </nav>
+      </details>
+
+      <details class="group" data-group="modded" open>
+        <summary>
+          <span>Modded Eaglercraft</span>
+          <span class="group-count">2</span>
+          <span class="group-chev" aria-hidden="true"></span>
+        </summary>
+        <nav class="versions four-up" aria-label="Modded Eaglercraft editions">
+          <a class="version" href="./eaglercraft1-8-BiomesOPlenty-WASM.html">
+            <span><small>Biomes O' Plenty</small><strong>1.8.8 BOP</strong></span>
+            <span class="launch">Launch game ↗</span>
+          </a>
+          <a class="version" href="./The%20Broken%20Script.html">
+            <span><small>Horror edition</small><strong>The Broken Script</strong></span>
+            <span class="launch">Launch game ↗</span>
+          </a>
+        </nav>
+      </details>
+    </div>
     <footer>Games launch as separate pages.</footer>
   </main>
+  <script>
+    (function () {
+      document.querySelectorAll('details.group').forEach(function (group) {
+        var key = 'eaglercraft.group.' + group.dataset.group;
+        try {
+          var saved = localStorage.getItem(key);
+          if (saved === 'closed') group.open = false;
+          else if (saved === 'open') group.open = true;
+        } catch (error) {}
+        group.addEventListener('toggle', function () {
+          try {
+            localStorage.setItem(key, group.open ? 'open' : 'closed');
+          } catch (error) {}
+        });
+      });
+    })();
+  </script>
   <script src="themes.js"></script>
 </body>
 </html>
