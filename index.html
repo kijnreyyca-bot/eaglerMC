@@ -88,6 +88,97 @@
       transition: transform .2s;
     }
     .group:not([open]) .group-chev { transform: rotate(-45deg) translate(-1px, 1px); }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .search-wrap { position: relative; flex: 1 1 220px; }
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--faint);
+      pointer-events: none;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 11px 14px 11px 35px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      transition: border-color .18s;
+    }
+    .search-wrap input::placeholder { color: var(--faint); }
+    .search-wrap input:focus-visible { outline: none; border-color: rgba(var(--ac), .5); }
+    .account-wrap { position: relative; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .chip {
+      padding: 7px 13px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, color .18s, border-color .18s;
+    }
+    .chip:hover { background: var(--card-hover); color: var(--ink); }
+    .chip.is-active { background: var(--accent); border-color: transparent; color: #10150c; }
+    .data-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .data-btn {
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, color .18s, border-color .18s;
+    }
+    .data-btn:hover { background: var(--card-hover); color: var(--ink); border-color: rgba(var(--ac), .36); }
+    .sync-note { margin: 0 0 0 2px; color: var(--faint); font-size: 11px; }
+    .sync-note.is-warn { color: #e07878; }
+    .card { position: relative; display: flex; }
+    .card > .version { flex: 1; }
+    .fav {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--faint);
+      font-size: 15px;
+      line-height: 1;
+      cursor: pointer;
+      transition: color .18s, background .18s;
+    }
+    .fav:hover { color: var(--accent); background: rgba(var(--ac), .12); }
+    .fav[aria-pressed="true"] { color: var(--accent); }
+    .fav:focus-visible { outline: 2px solid rgba(var(--ac), .5); outline-offset: 1px; }
+    .empty-note { margin: 0; padding: 2px 18px 16px; color: var(--muted); font-size: 13px; }
     .versions {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -153,8 +244,45 @@
   <main>
     <div class="eyebrow">Eaglercraft launcher</div>
     <h1>Pick your edition</h1>
-    <p class="intro">Pick a category, then choose an edition to launch in your browser.</p>
+    <p class="intro">Search, star your favorites, or jump back into something recent.</p>
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="7" cy="7" r="4.4"/><path d="M10.3 10.3 14 14" stroke-linecap="round"/></svg>
+        <input id="search" type="search" placeholder="Search editions…" autocomplete="off" spellcheck="false" aria-label="Search editions">
+      </div>
+    </div>
+    <div class="chips" role="group" aria-label="Filter editions">
+      <button class="chip is-active" type="button" data-filter="all" aria-pressed="true">All</button>
+      <button class="chip" type="button" data-filter="favorites" aria-pressed="false">★ Favorites</button>
+      <button class="chip" type="button" data-filter="recent" aria-pressed="false">Recently played</button>
+    </div>
+    <div class="data-row">
+      <button class="data-btn" id="export-btn" type="button">Export favorites.json</button>
+      <button class="data-btn" id="import-btn" type="button">Import .json</button>
+      <input id="import-file" type="file" accept=".json,application/json" hidden>
+      <span class="sync-note" id="data-note" role="status">Favorites are saved on this device.</span>
+    </div>
     <div class="selector">
+      <details class="group" id="fav-group" open hidden>
+        <summary>
+          <span>★ Favorites</span>
+          <span class="group-count" id="fav-count">0</span>
+          <span class="group-chev" aria-hidden="true"></span>
+        </summary>
+        <nav class="versions four-up" id="fav-grid" aria-label="Favorite editions"></nav>
+        <p class="empty-note" id="fav-empty" hidden>No favorites yet — tap the ☆ on any card.</p>
+      </details>
+
+      <details class="group" id="recent-group" open hidden>
+        <summary>
+          <span>Recently played</span>
+          <span class="group-count" id="recent-count">0</span>
+          <span class="group-chev" aria-hidden="true"></span>
+        </summary>
+        <nav class="versions four-up" id="recent-grid" aria-label="Recently played editions"></nav>
+        <p class="empty-note" id="recent-empty" hidden>Nothing played yet — launch an edition and it shows up here.</p>
+      </details>
+
       <details class="group" data-group="old" open>
         <summary>
           <span>Old Eaglercraft</span>
@@ -162,14 +290,20 @@
           <span class="group-chev" aria-hidden="true"></span>
         </summary>
         <nav class="versions four-up" aria-label="Old Eaglercraft editions">
-          <a class="version" href="./eaglercraft1-8-wasm.html">
-            <span><small>WASM-GC edition</small><strong>1.8.8</strong></span>
-            <span class="launch">Launch game ↗</span>
-          </a>
-          <a class="version" href="./eaglercraft-1.12.2.html">
-            <span><small>Classic edition</small><strong>1.12.2</strong></span>
-            <span class="launch">Launch game ↗</span>
-          </a>
+          <div class="card" data-id="eaglercraft1-8-wasm.html" data-tags="old wasm-gc">
+            <a class="version" href="./eaglercraft1-8-wasm.html">
+              <span><small>WASM-GC edition</small><strong>1.8.8</strong></span>
+              <span class="launch">Launch game ↗</span>
+            </a>
+            <button class="fav" type="button" aria-pressed="false" aria-label="Favorite 1.8.8" title="Favorite">☆</button>
+          </div>
+          <div class="card" data-id="eaglercraft-1.12.2.html" data-tags="old classic">
+            <a class="version" href="./eaglercraft-1.12.2.html">
+              <span><small>Classic edition</small><strong>1.12.2</strong></span>
+              <span class="launch">Launch game ↗</span>
+            </a>
+            <button class="fav" type="button" aria-pressed="false" aria-label="Favorite 1.12.2" title="Favorite">☆</button>
+          </div>
         </nav>
       </details>
 
@@ -180,18 +314,27 @@
           <span class="group-chev" aria-hidden="true"></span>
         </summary>
         <nav class="versions four-up" aria-label="Modern Eaglercraft editions">
-          <a class="version" href="./eaglercraft-1.14.4-wasm.html">
-            <span><small>Community port</small><strong>1.14.4</strong></span>
-            <span class="launch">Launch game ↗</span>
-          </a>
-          <a class="version" href="./eaglercraft-1.16.5-wasm.html">
-            <span><small>Community port</small><strong>1.16.5</strong></span>
-            <span class="launch">Launch game ↗</span>
-          </a>
-          <a class="version" href="./eaglercraft26-2.html">
-            <span><small>Offline edition</small><strong>26.2</strong></span>
-            <span class="launch">Launch game ↗</span>
-          </a>
+          <div class="card" data-id="eaglercraft-1.14.4-wasm.html" data-tags="modern community">
+            <a class="version" href="./eaglercraft-1.14.4-wasm.html">
+              <span><small>Community port</small><strong>1.14.4</strong></span>
+              <span class="launch">Launch game ↗</span>
+            </a>
+            <button class="fav" type="button" aria-pressed="false" aria-label="Favorite 1.14.4" title="Favorite">☆</button>
+          </div>
+          <div class="card" data-id="eaglercraft-1.16.5-wasm.html" data-tags="modern community">
+            <a class="version" href="./eaglercraft-1.16.5-wasm.html">
+              <span><small>Community port</small><strong>1.16.5</strong></span>
+              <span class="launch">Launch game ↗</span>
+            </a>
+            <button class="fav" type="button" aria-pressed="false" aria-label="Favorite 1.16.5" title="Favorite">☆</button>
+          </div>
+          <div class="card" data-id="eaglercraft26-2.html" data-tags="modern offline">
+            <a class="version" href="./eaglercraft26-2.html">
+              <span><small>Offline edition</small><strong>26.2</strong></span>
+              <span class="launch">Launch game ↗</span>
+            </a>
+            <button class="fav" type="button" aria-pressed="false" aria-label="Favorite 26.2" title="Favorite">☆</button>
+          </div>
         </nav>
       </details>
 
@@ -202,34 +345,390 @@
           <span class="group-chev" aria-hidden="true"></span>
         </summary>
         <nav class="versions four-up" aria-label="Modded Eaglercraft editions">
-          <a class="version" href="./eaglercraft1-8-BiomesOPlenty-WASM.html">
-            <span><small>Biomes O' Plenty</small><strong>1.8.8 BOP</strong></span>
-            <span class="launch">Launch game ↗</span>
-          </a>
-          <a class="version" href="./The%20Broken%20Script.html">
-            <span><small>Horror edition</small><strong>The Broken Script</strong></span>
-            <span class="launch">Launch game ↗</span>
-          </a>
+          <div class="card" data-id="eaglercraft1-8-BiomesOPlenty-WASM.html" data-tags="modded biomes o plenty">
+            <a class="version" href="./eaglercraft1-8-BiomesOPlenty-WASM.html">
+              <span><small>Biomes O' Plenty</small><strong>1.8.8 BOP</strong></span>
+              <span class="launch">Launch game ↗</span>
+            </a>
+            <button class="fav" type="button" aria-pressed="false" aria-label="Favorite 1.8.8 BOP" title="Favorite">☆</button>
+          </div>
+          <div class="card" data-id="The Broken Script.html" data-tags="modded horror">
+            <a class="version" href="./The%20Broken%20Script.html">
+              <span><small>Horror edition</small><strong>The Broken Script</strong></span>
+              <span class="launch">Launch game ↗</span>
+            </a>
+            <button class="fav" type="button" aria-pressed="false" aria-label="Favorite The Broken Script" title="Favorite">☆</button>
+          </div>
         </nav>
       </details>
     </div>
+    <p class="empty-note" id="no-results" hidden>No editions match that search.</p>
     <footer>Games launch as separate pages.</footer>
   </main>
   <script>
     (function () {
-      document.querySelectorAll('details.group').forEach(function (group) {
-        var key = 'eaglercraft.group.' + group.dataset.group;
+      'use strict';
+
+      var FAV_KEY = 'eaglercraft.favorites';
+      var RECENT_KEY = 'eaglercraft.recent';
+      var MAX_FAVORITES = 100;
+      var MAX_RECENT = 6;
+      var MAX_IMPORT = 500;
+
+      var searchEl = document.getElementById('search');
+      var favGroup = document.getElementById('fav-group');
+      var recentGroup = document.getElementById('recent-group');
+      var favGrid = document.getElementById('fav-grid');
+      var recentGrid = document.getElementById('recent-grid');
+      var favCount = document.getElementById('fav-count');
+      var recentCount = document.getElementById('recent-count');
+      var favEmpty = document.getElementById('fav-empty');
+      var recentEmpty = document.getElementById('recent-empty');
+      var noResults = document.getElementById('no-results');
+      var noteEl = document.getElementById('data-note');
+      var exportBtn = document.getElementById('export-btn');
+      var importBtn = document.getElementById('import-btn');
+      var importFile = document.getElementById('import-file');
+
+      var favorites = readIds();
+      var recent = readRecent();
+      var activeFilter = 'all';
+
+      /* ---------- storage ---------- */
+      function readIds() {
         try {
-          var saved = localStorage.getItem(key);
-          if (saved === 'closed') group.open = false;
-          else if (saved === 'open') group.open = true;
-        } catch (error) {}
-        group.addEventListener('toggle', function () {
-          try {
-            localStorage.setItem(key, group.open ? 'open' : 'closed');
-          } catch (error) {}
+          var v = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
+          if (!Array.isArray(v)) return [];
+          return v.filter(function (x) { return typeof x === 'string'; }).slice(0, MAX_FAVORITES);
+        } catch (e) { return []; }
+      }
+      function readRecent() {
+        try {
+          var v = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+          if (!Array.isArray(v)) return [];
+          return v.filter(function (r) {
+            return r && typeof r.id === 'string' && typeof r.at === 'number';
+          }).slice(0, MAX_RECENT);
+        } catch (e) { return []; }
+      }
+      function save() {
+        try {
+          localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+          localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+        } catch (e) {}
+      }
+
+      /* ---------- edition lookup ---------- */
+      function originals() {
+        return document.querySelectorAll('.selector .group[data-group] .card');
+      }
+      function cardById(id) {
+        var cards = originals();
+        for (var i = 0; i < cards.length; i++) {
+          if (cards[i].dataset.id === id) return cards[i];
+        }
+        return null;
+      }
+      function isKnown(id) { return !!cardById(id); }
+      function cloneCard(id) {
+        var src = cardById(id);
+        if (!src) return null;
+        var node = src.cloneNode(true);
+        node.classList.add('is-clone');
+        node.hidden = false;
+        node.removeAttribute('hidden');
+        return node;
+      }
+
+      /* ---------- rendering ---------- */
+      function updateStars() {
+        var buttons = document.querySelectorAll('.fav');
+        for (var i = 0; i < buttons.length; i++) {
+          var card = buttons[i].closest('.card');
+          if (!card) continue;
+          var on = favorites.indexOf(card.dataset.id) !== -1;
+          buttons[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+          buttons[i].textContent = on ? '★' : '☆';
+        }
+      }
+
+      function renderDynamic() {
+        favorites = favorites.filter(isKnown);
+        recent = recent.filter(function (r) { return isKnown(r.id); });
+
+        favGrid.innerHTML = '';
+        favorites.forEach(function (id) {
+          var node = cloneCard(id);
+          if (node) favGrid.appendChild(node);
         });
+        favCount.textContent = String(favorites.length);
+
+        recentGrid.innerHTML = '';
+        recent.forEach(function (r) {
+          var node = cloneCard(r.id);
+          if (node) recentGrid.appendChild(node);
+        });
+        recentCount.textContent = String(recent.length);
+
+        updateStars();
+        renderVisibility();
+      }
+
+      function renderVisibility() {
+        var q = searchEl.value.trim().toLowerCase();
+        var searching = q.length > 0;
+        var totalVisible = 0;
+
+        var groups = document.querySelectorAll('.selector .group[data-group]');
+        for (var g = 0; g < groups.length; g++) {
+          var cards = groups[g].querySelectorAll('.card');
+          var visible = 0;
+          for (var c = 0; c < cards.length; c++) {
+            var card = cards[c];
+            var hay = (card.textContent + ' ' + (card.dataset.tags || '')).toLowerCase();
+            var hit = !searching || hay.indexOf(q) !== -1;
+            card.hidden = !hit;
+            if (hit) visible++;
+          }
+          groups[g].hidden = visible === 0 || (activeFilter !== 'all' && !searching);
+          totalVisible += visible;
+        }
+
+        var showFav = !searching && favorites.length > 0;
+        var showRecent = !searching && recent.length > 0;
+
+        if (activeFilter === 'favorites') {
+          showRecent = false;
+          showFav = !searching;
+        } else if (activeFilter === 'recent') {
+          showFav = false;
+          showRecent = !searching;
+        } else if (searching) {
+          showFav = false;
+          showRecent = false;
+        }
+
+        favGroup.hidden = !showFav;
+        recentGroup.hidden = !showRecent;
+        favEmpty.hidden = !(activeFilter === 'favorites' && !searching && favorites.length === 0);
+        recentEmpty.hidden = !(activeFilter === 'recent' && !searching && recent.length === 0);
+        noResults.hidden = !(searching && totalVisible === 0);
+
+        if (searching && totalVisible > 0) {
+          noResults.hidden = true;
+        }
+      }
+
+      /* ---------- actions ---------- */
+      function toggleFavorite(id) {
+        if (!isKnown(id)) return;
+        var i = favorites.indexOf(id);
+        if (i === -1) favorites.push(id);
+        else favorites.splice(i, 1);
+        favorites = favorites.slice(0, MAX_FAVORITES);
+        save();
+        renderDynamic();
+        setNote(favorites.length
+          ? 'Saved on this device · ' + favorites.length + ' favorite' + (favorites.length === 1 ? '' : 's')
+          : 'Favorites are saved on this device.');
+      }
+
+      function addRecent(id) {
+        if (!isKnown(id)) return;
+        recent = recent.filter(function (r) { return r.id !== id; });
+        recent.unshift({ id: id, at: Date.now() });
+        recent = recent.slice(0, MAX_RECENT);
+        save();
+        renderDynamic();
+      }
+
+      /* ---------- note ---------- */
+      function setNote(msg, warn) {
+        noteEl.textContent = msg;
+        noteEl.classList.toggle('is-warn', !!warn);
+      }
+
+      /* ---------- export ---------- */
+      exportBtn.addEventListener('click', function () {
+        var payload = {
+          app: 'eaglercraft-launcher',
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          favorites: favorites.slice(),
+          recent: recent.map(function (r) { return { id: r.id, at: r.at }; })
+        };
+        var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'favorites.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        setNote('Exported favorites.json (' + favorites.length + ' favorite' + (favorites.length === 1 ? '' : 's') + ').');
       });
+
+      /* ---------- import ---------- */
+      importBtn.addEventListener('click', function () { importFile.click(); });
+
+      importFile.addEventListener('change', function () {
+        var file = importFile.files && importFile.files[0];
+        if (!file) return;
+
+        if (!/\.json$/i.test(file.name) && file.type !== 'application/json') {
+          setNote('Rejected — files must end in .json.', true);
+          importFile.value = '';
+          return;
+        }
+        if (file.size > 512 * 1024) {
+          setNote('Rejected — file is larger than 512 KB.', true);
+          importFile.value = '';
+          return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function () {
+          var result = validateImport(String(reader.result || ''));
+          if (result.error) setNote('Rejected — ' + result.error, true);
+          else applyImport(result);
+          importFile.value = '';
+        };
+        reader.onerror = function () {
+          setNote('Rejected — the file could not be read.', true);
+          importFile.value = '';
+        };
+        reader.readAsText(file);
+      });
+
+      function validateImport(text) {
+        var data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          return { error: 'not valid JSON.' };
+        }
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+          return { error: 'expected an object with a "favorites" list.' };
+        }
+        if (!Array.isArray(data.favorites)) {
+          return { error: 'missing the "favorites" array.' };
+        }
+        if (data.favorites.length > MAX_IMPORT) {
+          return { error: 'too many entries (max ' + MAX_IMPORT + ').' };
+        }
+        if (data.recent != null && !Array.isArray(data.recent)) {
+          return { error: '"recent" must be an array.' };
+        }
+
+        var valid = [];
+        var skipped = 0;
+
+        data.favorites.forEach(function (id) {
+          if (typeof id === 'string' && isKnown(id)) {
+            if (valid.indexOf(id) === -1) valid.push(id);
+          } else {
+            skipped++;
+          }
+        });
+
+        var rec = [];
+        (data.recent || []).forEach(function (entry) {
+          if (entry && typeof entry === 'object' && typeof entry.id === 'string' && isKnown(entry.id)) {
+            rec.push({
+              id: entry.id,
+              at: typeof entry.at === 'number' && isFinite(entry.at) ? entry.at : Date.now()
+            });
+          } else {
+            skipped++;
+          }
+        });
+
+        if (!valid.length && !rec.length) {
+          return { error: 'no editions in that file match this launcher.' };
+        }
+        return { favorites: valid, recent: rec, skipped: skipped };
+      }
+
+      function applyImport(result) {
+        var added = 0;
+        result.favorites.forEach(function (id) {
+          if (favorites.indexOf(id) === -1) {
+            favorites.push(id);
+            added++;
+          }
+        });
+
+        var byId = {};
+        recent.concat(result.recent).forEach(function (r) {
+          if (!byId[r.id] || r.at > byId[r.id].at) byId[r.id] = r;
+        });
+        recent = Object.keys(byId)
+          .map(function (k) { return byId[k]; })
+          .sort(function (a, b) { return b.at - a.at; })
+          .slice(0, MAX_RECENT);
+
+        favorites = favorites.slice(0, MAX_FAVORITES);
+        save();
+        renderDynamic();
+
+        var msg = 'Imported ' + result.favorites.length + ' favorite' + (result.favorites.length === 1 ? '' : 's');
+        if (added) msg += ' (' + added + ' new)';
+        if (result.skipped) msg += ' · ' + result.skipped + ' unknown entr' + (result.skipped === 1 ? 'y' : 'ies') + ' skipped';
+        setNote(msg + '.');
+      }
+
+      /* ---------- events ---------- */
+      searchEl.addEventListener('input', renderVisibility);
+
+      var chips = document.querySelectorAll('.chip');
+      for (var i = 0; i < chips.length; i++) {
+        chips[i].addEventListener('click', function () {
+          activeFilter = this.dataset.filter;
+          var all = document.querySelectorAll('.chip');
+          for (var j = 0; j < all.length; j++) {
+            var on = all[j] === this;
+            all[j].classList.toggle('is-active', on);
+            all[j].setAttribute('aria-pressed', on ? 'true' : 'false');
+          }
+          renderVisibility();
+        });
+      }
+
+      document.addEventListener('click', function (e) {
+        var favBtn = e.target.closest && e.target.closest('.fav');
+        if (favBtn) {
+          e.preventDefault();
+          var favCard = favBtn.closest('.card');
+          if (favCard) toggleFavorite(favCard.dataset.id);
+          return;
+        }
+        var link = e.target.closest && e.target.closest('.card > .version');
+        if (link) {
+          var linkCard = link.closest('.card');
+          if (linkCard) addRecent(linkCard.dataset.id);
+        }
+      });
+
+      /* ---------- collapsible groups ---------- */
+      var groups = document.querySelectorAll('details.group[data-group]');
+      for (var g = 0; g < groups.length; g++) {
+        (function (group) {
+          var key = 'eaglercraft.group.' + group.dataset.group;
+          try {
+            var saved = localStorage.getItem(key);
+            if (saved === 'closed') group.open = false;
+            else if (saved === 'open') group.open = true;
+          } catch (e) {}
+          group.addEventListener('toggle', function () {
+            try { localStorage.setItem(key, group.open ? 'open' : 'closed'); } catch (e) {}
+          });
+        })(groups[g]);
+      }
+
+      /* ---------- boot ---------- */
+      renderDynamic();
+      setNote('Favorites are saved on this device.');
     })();
   </script>
   <script src="themes.js"></script>
