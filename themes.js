@@ -3,7 +3,10 @@
 (function () {
   'use strict';
 
-  var COLORS = { void: '#000000', dark: '#1a1a1d', white: '#eceef1', blue: '#0a1628' };
+  // Each theme's background lives in CSS (--bg), so read it instead of keeping
+  // a duplicate colour table here.
+  var THEMES = ['void', 'dark', 'white', 'blue'];
+  var LABELS = { void: 'The Void', dark: 'Dark', white: 'White', blue: 'Dark Blue' };
 
   function start() {
     var root = document.documentElement;
@@ -12,10 +15,16 @@
     var meta = document.querySelector('#theme-color');
     var opts = menu ? menu.querySelectorAll('.theme-opt') : [];
 
+    function themeColor() {
+      var bg = getComputedStyle(root).getPropertyValue('--bg').trim();
+      return bg || '#1a1a1d';
+    }
+
     function apply(name, save) {
-      if (!COLORS[name]) name = 'dark';
+      if (THEMES.indexOf(name) < 0) name = 'dark';
       root.dataset.theme = name;
-      if (meta) meta.setAttribute('content', COLORS[name]);
+      if (meta) meta.setAttribute('content', themeColor());
+      if (btn) btn.setAttribute('aria-label', 'Theme: ' + (LABELS[name] || name));
       for (var i = 0; i < opts.length; i++) {
         opts[i].setAttribute('aria-checked', String(opts[i].dataset.t === name));
       }
